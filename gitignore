@@ -1,0 +1,17 @@
+# Файлы сборки Visual Studio
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+# Файлы настроек пользователя и кэш
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+# Файлы базы данных (если не хотите заливать локальную БД)
+*.db
+*.sqlite
+# Пакеты NuGet
+*.nupkg
+*.snupkg
