@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
-
+﻿using Microsoft.Data.Sqlite;
 namespace RAndG.Data
 {
     public static class Database
@@ -19,6 +13,7 @@ namespace RAndG.Data
             using var connection = GetConnection();
             connection.Open();
             string sql = @"
+                PRAGMA foreign_keys = ON;
                 CREATE TABLE IF NOT EXISTS Tracks
                 (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,10 +21,23 @@ namespace RAndG.Data
                     Title TEXT NOT NULL,
                     Artist TEXT
                 );
+                CREATE TABLE IF NOT EXISTS Playlists
+                (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    Name TEXT NOT NULL COLLATE NOCASE UNIQUE
+                );
+                CREATE TABLE IF NOT EXISTS PlaylistTracks
+                (
+                    PlaylistId INTEGER NOT NULL,
+                    TrackId INTEGER NOT NULL,
+                    Position INTEGER NOT NULL DEFAULT 0,
+                    PRIMARY KEY (PlaylistId, TrackId),
+                    FOREIGN KEY (PlaylistId) REFERENCES Playlists(Id) ON DELETE CASCADE,
+                    FOREIGN KEY (TrackId) REFERENCES Tracks(Id) ON DELETE CASCADE
+                );
             ";
             using var command = new SqliteCommand(sql, connection);
             command.ExecuteNonQuery();
-             
         }
     }
 }
