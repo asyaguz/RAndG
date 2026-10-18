@@ -1,14 +1,11 @@
 ﻿using System;
-
 namespace RAndG.Players
 
 {
 
     internal class StandardPlayer : IDisposable
-
     {
-
-        private readonly MusicPlayer musicPlayer;
+        private readonly MusicPlayer musicPlayer = new();
 
         public bool IsPlaying => musicPlayer.IsPlaying;
 
@@ -17,14 +14,6 @@ namespace RAndG.Players
         public TimeSpan CurrentTime => musicPlayer.CurrentTime;
 
         public TimeSpan TotalTime => musicPlayer.TotalTime;
-
-        public StandardPlayer()
-
-        {
-
-            musicPlayer = new MusicPlayer();
-
-        }
 
         public void Play(string filePath)
 
@@ -85,4 +74,4 @@ namespace RAndG.Players
     }
 
 }
-
+ 
