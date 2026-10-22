@@ -1,14 +1,8 @@
 ﻿using Microsoft.Data.Sqlite;
 using RAndG.Data;
 using RAndG.Models;
-using RAndG.Services;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace RAndG.Services
 {
     public class MusicLibrary
@@ -20,6 +14,7 @@ namespace RAndG.Services
         public List<Track> SearchTracks(string searchText, string sortBy)
         {
             var tracks = new List<Track>();
+            searchText = searchText?.Trim() ?? "";
             string orderBy = sortBy switch
             {
                 "Исполнитель" => "Artist COLLATE NOCASE, Title COLLATE NOCASE",
@@ -29,16 +24,16 @@ namespace RAndG.Services
             };
             using var connection = Database.GetConnection();
             connection.Open();
-            string sql = $@"
+            using var command = connection.CreateCommand();
+            // Название сортировки выбирается только из заранее заданных вариантов.
+            command.CommandText = $@"
                 SELECT Id, FilePath, Title, Artist
                 FROM Tracks
                 WHERE @search = ''
-                    OR Title LIKE @pattern ESCAPE '\'
-                    OR COALESCE(Artist, '') LIKE @pattern ESCAPE '\'
-                ORDER BY {orderBy};
-            ";
+                OR Title LIKE @pattern ESCAPE '\'
+                OR COALESCE(Artist, '') LIKE @pattern ESCAPE '\'
+                ORDER BY {orderBy};";
             string escapedSearch = searchText.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
-            using var command = new SqliteCommand(sql, connection);
             command.Parameters.AddWithValue("@search", searchText);
             command.Parameters.AddWithValue("@pattern", "%" + escapedSearch + "%");
             using var reader = command.ExecuteReader();
@@ -56,29 +51,27 @@ namespace RAndG.Services
         }
         public bool AddTrack(Track track)
         {
+            if (track == null || string.IsNullOrWhiteSpace(track.FilePath))
+                return false;
+            // В библиотеку добавляется ссылка на файл, а не его копия.
+            if (!System.IO.File.Exists(track.FilePath))
+                return false;
             using var connection = Database.GetConnection();
             connection.Open();
-            string sql = "INSERT INTO Tracks (FilePath, Title, Artist) VALUES (@filePath, @title, @artist);";
-            using var command = new SqliteCommand(sql, connection);
+            using var command = connection.CreateCommand();
+            command.CommandText = "INSERT OR IGNORE INTO Tracks (FilePath, Title, Artist) VALUES (@filePath, @title, @artist);";
             command.Parameters.AddWithValue("@filePath", track.FilePath);
-            command.Parameters.AddWithValue("@title", track.Title);
-            command.Parameters.AddWithValue("@artist", track.Artist);
-            try
-            {
-                command.ExecuteNonQuery();
-                return true;
-            }
-            catch (SqliteException)
-            {
-                return false;
-            }
+            command.Parameters.AddWithValue("@title", track.Title ?? "");
+            command.Parameters.AddWithValue("@artist", track.Artist ?? "");
+            return command.ExecuteNonQuery() > 0;
         }
         public void DeleteTrack(int id)
         {
             using var connection = Database.GetConnection();
             connection.Open();
-            string sql = "DELETE FROM Tracks WHERE Id = @id;";
-            using var command = new SqliteCommand(sql, connection);
+            using var command = connection.CreateCommand();
+            // Удаляется только запись из базы, исходный аудиофайл сохраняется.
+            command.CommandText = "DELETE FROM Tracks WHERE Id = @id;";
             command.Parameters.AddWithValue("@id", id);
             command.ExecuteNonQuery();
         }

@@ -904,105 +904,59 @@ namespace RAndG
         }
 
         private void LoadTracks()
-
         {
-
             try
-
             {
-
-                allTracks = musicLibrary.GetTracks();
-
+                allTracks = PerformanceMonitor.Measure("LoadTracks", () => musicLibrary.GetTracks(), 2000);
                 RefreshTracks();
-
             }
-
             catch (Exception ex)
-
             {
-
                 MessageBox.Show("Не удалось загрузить библиотеку.\n\n" + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
             }
-
         }
 
         private void RefreshTracks()
-
         {
-
             if (IsDisposed)
-
                 return;
-
             string sortBy = sortBox.SelectedItem?.ToString() ?? "Название";
-
-            List<Track> visibleTracks = musicLibrary.SearchTracks(searchBox.Text.Trim(), sortBy);
-
-            tracksGrid.DataSource = null;
-
-            tracksGrid.DataSource = visibleTracks;
-
-            statusLabel.Text = $"Найдено треков: {visibleTracks.Count}";
-
+            PerformanceMonitor.Measure("SearchAndDisplayTracks", () =>
+            {
+                allTracks = musicLibrary.SearchTracks(searchBox.Text.Trim(), sortBy);
+                tracksGrid.DataSource = null;
+                tracksGrid.DataSource = allTracks;
+                statusLabel.Text = $"Найдено треков: {allTracks.Count}";
+            }, 1000);
         }
 
         private void AddMusicFiles()
-
         {
-
             using OpenFileDialog dialog = new()
-
             {
-
                 Title = "Выберите музыкальные файлы",
-
                 Filter = "Аудиофайлы|*.mp3;*.wav;*.aiff;*.aif;*.wma|Все файлы|*.*",
-
                 Multiselect = true
-
             };
-
             if (dialog.ShowDialog() != DialogResult.OK)
-
                 return;
-
             int added = 0;
-
             int skipped = 0;
-
             foreach (string path in dialog.FileNames)
-
             {
-
                 Track track = new()
-
                 {
-
                     FilePath = path,
-
                     Title = Path.GetFileNameWithoutExtension(path),
-
                     Artist = ""
-
                 };
-
-                if (musicLibrary.AddTrack(track))
-
+                if (PerformanceMonitor.Measure("AddTrack", () => musicLibrary.AddTrack(track), 2000))
                     added++;
-
                 else
-
                     skipped++;
-
             }
-
-            allTracks = musicLibrary.GetTracks();
-
             RefreshTracks();
-
-            MessageBox.Show($"Добавлено: {added}\nПропущено (уже есть в библиотеке): {skipped}", "Импорт музыки", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+            MessageBox.Show($"Добавлено: {added}\nПропущено: {skipped}", "Импорт музыки", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void LoadPlaylists(int? selectId = null)
@@ -1618,5 +1572,4 @@ namespace RAndG
         }
 
     }
-
 }
