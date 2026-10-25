@@ -1,20 +1,13 @@
-using System;
-
-using System.Collections.Generic;
-
-using System.Drawing;
-
-using System.IO;
-
-using System.Linq;
-
-using System.Windows.Forms;
-
 using RAndG.Models;
-
 using RAndG.Players;
-
 using RAndG.Services;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace RAndG
 
@@ -499,6 +492,31 @@ namespace RAndG
             };
 
         }
+        private void DeleteSelectedPlaylist()
+        {
+            if (playlistsList.SelectedItem is not Playlist playlist)
+            {
+                MessageBox.Show(
+                    "Сначала выбери плейлист.",
+                    "Удаление плейлиста",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+                return;
+            }
+            var result = MessageBox.Show(
+                $"Удалить плейлист «{playlist.Name}»?",
+                "Подтверждение удаления",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+            if (result != DialogResult.Yes)
+                return;
+            if (playlistService.DeletePlaylist(playlist.Id))
+            {
+                selectedPlaylist = null;
+                LoadPlaylists();
+                statusLabel.Text = "Плейлист удалён";
+            }
+        }
 
         private Panel BuildPlaylistPanel()
 
@@ -653,6 +671,18 @@ namespace RAndG
             controls.Controls.Add(stop);
 
             controls.Controls.Add(next);
+
+            Button createPlaylistButton = CreatePlayerButton("+");
+            createPlaylistButton.Width = 100;
+            createPlaylistButton.Text = "+ Плейлист";
+            createPlaylistButton.Click += (_, _) => CreatePlaylist();
+            controls.Controls.Add(createPlaylistButton);
+
+            Button deletePlaylistButton = CreatePlayerButton("−");
+            deletePlaylistButton.Width = 150;
+            deletePlaylistButton.Text = "Удалить плейлист";
+            deletePlaylistButton.Click += (_, _) => DeleteSelectedPlaylist();
+            controls.Controls.Add(deletePlaylistButton);
 
             FlowLayoutPanel volumePanel = new()
 
@@ -944,6 +974,12 @@ namespace RAndG
             int skipped = 0;
             foreach (string path in dialog.FileNames)
             {
+                if (!AudioFileValidator.TryValidate(path, out string error))
+                {
+                    skipped++;
+                    continue;
+                }
+
                 Track track = new()
                 {
                     FilePath = path,
