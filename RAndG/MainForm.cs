@@ -1247,7 +1247,7 @@ namespace RAndG
 
                     currentQueue.Add(track);
 
-                playlistPlayer.Play(track);
+                playlistPlayer.Play(track.FilePath);
 
                 currentTrack = track;
 

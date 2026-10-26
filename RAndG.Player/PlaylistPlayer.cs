@@ -1,10 +1,9 @@
 ﻿using System;
-using RAndG.Models;
 
 namespace RAndG.Players
 
 {
-    internal class PlaylistPlayer : IDisposable
+    public class PlaylistPlayer : IDisposable
     {
         private readonly StandardPlayer player = new();
 
@@ -16,11 +15,10 @@ namespace RAndG.Players
 
         public TimeSpan TotalTime => player.TotalTime;
 
-        public void Play(Track track)
+        public void Play(string filePath)
 
         {
-
-            player.Play(track.FilePath);
+            player.Play(filePath);
 
         }
 

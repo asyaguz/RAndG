@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="RAndG.Player/RAndG.Player.csproj" Id="5e194465-c229-494c-a369-3d1311f27063" />
   <Project Path="RAndG/RAndG.csproj" />
 </Solution>
