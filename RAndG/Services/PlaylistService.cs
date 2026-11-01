@@ -10,36 +10,31 @@ namespace RAndG.Services
         private List<Playlist> playlists;
         private Database db;
         private List<Track> mainLibraryTracks;
-
         public PlaylistService(Database database, List<Track> allTracks)
         {
             this.db = database;
             this.mainLibraryTracks = allTracks;
             RefreshPlaylists();
         }
-
         public void RefreshPlaylists()
         {
             this.playlists = db.LoadPlaylists(mainLibraryTracks);
         }
-
         public List<Playlist> GetPlaylists()
         {
             return this.playlists;
         }
-
         public void CreatePlaylist(string name)
         {
             db.CreatePlaylist(name);
             RefreshPlaylists();
         }
-
         public void DeletePlaylist(int playlistId)
         {
             db.DeletePlaylist(playlistId);
             RefreshPlaylists();
         }
-
+        // Построчная проверка по числовому Id исключает дублирование композиций внутри списков
         public void AddTrackToPlaylist(int playlistId, Track track)
         {
             foreach (Playlist p in playlists)
@@ -55,7 +50,6 @@ namespace RAndG.Services
                             break;
                         }
                     }
-
                     if (alreadyExists == false)
                     {
                         db.AddTrackToPlaylist(playlistId, track.Id);
@@ -65,7 +59,6 @@ namespace RAndG.Services
                 }
             }
         }
-
         public void RemoveTrackFromPlaylist(int playlistId, int trackId)
         {
             db.RemoveTrackFromPlaylist(playlistId, trackId);

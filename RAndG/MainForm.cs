@@ -16,24 +16,42 @@ namespace RAndG
         private MusicPlayer player;
         private AudioFileValidator validator;
         private PerformanceMonitor monitor;
-
         private List<Track> activeLibraryList;
-
         public MainForm()
         {
             InitializeComponent();
-
             db = new Database();
             library = new MusicLibrary(db);
             playlistService = new PlaylistService(db, library.GetAllTracks());
             player = new MusicPlayer();
             validator = new AudioFileValidator();
             monitor = new PerformanceMonitor();
-
             UpdateLibraryUI(library.GetAllTracks());
             UpdatePlaylistsUI();
+            // Устанавливаем лавандовую палитру при запуске
+            this.BackColor = Color.FromArgb(242, 241, 246);
+            Color buttonColor = Color.FromArgb(223, 219, 237);
+            Color textColor = Color.FromArgb(70, 68, 81);
+            Font mainFont = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            Button[] allButtons = new Button[] {
+               btnSearch, btnClearSearch, btnCreatePlaylist, btnAddTrack,
+               btnDeleteTrack, btnAddTrackToP, btnDeletePlaylist,
+               btnRemoveTrackFromP, btnPrev, btnPause, btnStop, btnNext
+           };
+            foreach (Button btn in allButtons)
+            {
+                btn.BackColor = buttonColor;
+                btn.ForeColor = textColor;
+                btn.FlatStyle = FlatStyle.Flat;
+                btn.FlatAppearance.BorderSize = 0;
+                btn.Font = mainFont;
+            }
+            btnPlay.BackColor = Color.FromArgb(204, 226, 214);
+            btnPlay.ForeColor = textColor;
+            btnPlay.FlatStyle = FlatStyle.Flat;
+            btnPlay.FlatAppearance.BorderSize = 0;
+            btnPlay.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
         }
-
         private void UpdateLibraryUI(List<Track> tracks)
         {
             activeLibraryList = tracks;
@@ -43,7 +61,6 @@ namespace RAndG
                 lstLibrary.Items.Add(t.Title);
             }
         }
-
         private void UpdatePlaylistsUI()
         {
             lstPlaylists.Items.Clear();
@@ -53,22 +70,18 @@ namespace RAndG
                 lstPlaylists.Items.Add(p.Name);
             }
         }
-        private void btnAddTrack_Click(object sender, EventArgs e)
+        private void BtnAddTrackClick(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Музыкальные файлы|*.mp3;*.wav";
-
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 string path = openFileDialog.FileName;
                 if (validator.ValidateFile(path))
                 {
                     string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
-
                     string artist = "Неизвестный исполнитель";
                     string title = fileName;
-
-                    // Если в названии файла есть дефис, автоматически разделяем его
                     if (fileName.Contains(" - "))
                     {
                         string[] parts = fileName.Split(new string[] { " - " }, StringSplitOptions.None);
@@ -78,7 +91,6 @@ namespace RAndG
                             title = parts[1].Trim();
                         }
                     }
-
                     library.AddTrack(title, artist, path);
                     playlistService.RefreshPlaylists();
                     UpdateLibraryUI(library.GetAllTracks());
@@ -89,8 +101,7 @@ namespace RAndG
                 }
             }
         }
-
-        private void btnDeleteTrack_Click(object sender, EventArgs e)
+        private void BtnDeleteTrackClick(object sender, EventArgs e)
         {
             int index = lstLibrary.SelectedIndex;
             if (index >= 0 && index < activeLibraryList.Count)
@@ -102,8 +113,7 @@ namespace RAndG
                 lstPlaylistTracks.Items.Clear();
             }
         }
-
-        private void btnSearch_Click(object sender, EventArgs e)
+        private void BtnSearchClick(object sender, EventArgs e)
         {
             monitor.StartMeasure();
             string query = txtSearch.Text;
@@ -114,14 +124,12 @@ namespace RAndG
             }
             monitor.EndMeasure("Поиск в базе данных");
         }
-
-        private void btnClearSearch_Click(object sender, EventArgs e)
+        private void BtnClearSearchClick(object sender, EventArgs e)
         {
             txtSearch.Text = "";
             UpdateLibraryUI(library.GetAllTracks());
         }
-
-        private void btnCreatePlaylist_Click(object sender, EventArgs e)
+        private void BtnCreatePlaylistClick(object sender, EventArgs e)
         {
             string name = txtPlaylistName.Text;
             if (string.IsNullOrEmpty(name) == false)
@@ -131,8 +139,7 @@ namespace RAndG
                 txtPlaylistName.Text = "";
             }
         }
-
-        private void btnDeletePlaylist_Click(object sender, EventArgs e)
+        private void BtnDeletePlaylistClick(object sender, EventArgs e)
         {
             int index = lstPlaylists.SelectedIndex;
             if (index >= 0)
@@ -144,8 +151,7 @@ namespace RAndG
                 lstPlaylistTracks.Items.Clear();
             }
         }
-
-        private void lstPlaylists_SelectedIndexChanged(object sender, EventArgs e)
+        private void LstPlaylistsSelectedIndexChanged(object sender, EventArgs e)
         {
             int index = lstPlaylists.SelectedIndex;
             if (index >= 0)
@@ -153,7 +159,6 @@ namespace RAndG
                 playlistService.RefreshPlaylists();
                 List<Playlist> allP = playlistService.GetPlaylists();
                 Playlist selected = allP[index];
-
                 lstPlaylistTracks.Items.Clear();
                 foreach (Track t in selected.Tracks)
                 {
@@ -161,43 +166,37 @@ namespace RAndG
                 }
             }
         }
-
-        private void btnAddTrackToP_Click(object sender, EventArgs e)
+        private void BtnAddTrackToPClick(object sender, EventArgs e)
         {
             int trackIndex = lstLibrary.SelectedIndex;
             int playlistIndex = lstPlaylists.SelectedIndex;
-
             if (trackIndex >= 0 && playlistIndex >= 0)
             {
                 Track t = activeLibraryList[trackIndex];
                 List<Playlist> allP = playlistService.GetPlaylists();
                 Playlist p = allP[playlistIndex];
-
                 playlistService.AddTrackToPlaylist(p.Id, t);
-                lstPlaylists_SelectedIndexChanged(null, null);
+                LstPlaylistsSelectedIndexChanged(null, null);
             }
             else
             {
                 MessageBox.Show("Пожалуйста, выберите трек слева и плейлист справа!", "Подсказка", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
-        private void btnRemoveTrackFromP_Click(object sender, EventArgs e)
+        private void BtnRemoveTrackFromPClick(object sender, EventArgs e)
         {
             int playlistIndex = lstPlaylists.SelectedIndex;
             int trackIndex = lstPlaylistTracks.SelectedIndex;
-
             if (playlistIndex >= 0 && trackIndex >= 0)
             {
                 List<Playlist> allP = playlistService.GetPlaylists();
                 Playlist p = allP[playlistIndex];
                 Track t = p.Tracks[trackIndex];
-
                 playlistService.RemoveTrackFromPlaylist(p.Id, t.Id);
-                lstPlaylists_SelectedIndexChanged(null, null);
+                LstPlaylistsSelectedIndexChanged(null, null);
             }
         }
-
-        private void btnPlay_Click(object sender, EventArgs e)
+        private void BtnPlayClick(object sender, EventArgs e)
         {
             int index = lstLibrary.SelectedIndex;
             if (index >= 0)
@@ -212,7 +211,6 @@ namespace RAndG
                         {
                             paths.Add(t.FilePath);
                         }
-
                         player.SetQueue(paths, index);
                         player.Play();
                         lblCurrentTrack.Text = "Сейчас играет: " + target.Title;
@@ -229,18 +227,18 @@ namespace RAndG
                 }
             }
         }
-        private void btnPause_Click(object sender, EventArgs e)
+        private void BtnPauseClick(object sender, EventArgs e)
         {
             player.Pause();
         }
-        private void btnStop_Click(object sender, EventArgs e)
+        private void BtnStopClick(object sender, EventArgs e)
         {
             player.Stop();
             playbackTimer.Stop();
             trackProgress.Value = 0;
             lblTime.Text = "00:00 / 00:00";
         }
-        private void btnNext_Click(object sender, EventArgs e)
+        private void BtnNextClick(object sender, EventArgs e)
         {
             player.Next();
             string currentPath = player.GetCurrentTrackPath();
@@ -256,7 +254,7 @@ namespace RAndG
                 }
             }
         }
-        private void btnPrev_Click(object sender, EventArgs e)
+        private void BtnPrevClick(object sender, EventArgs e)
         {
             player.Previous();
             string currentPath = player.GetCurrentTrackPath();
@@ -272,12 +270,11 @@ namespace RAndG
                 }
             }
         }
-        private void trackVolume_Scroll(object sender, EventArgs e)
+        private void TrackVolumeScroll(object sender, EventArgs e)
         {
             player.SetVolume(trackVolume.Value);
         }
-
-        private void trackProgress_Scroll(object sender, EventArgs e)
+        private void TrackProgressScroll(object sender, EventArgs e)
         {
             double total = player.GetTotalDurationSeconds();
             if (total > 0)
@@ -285,20 +282,18 @@ namespace RAndG
                 player.SetPositionSeconds(trackProgress.Value);
             }
         }
-
-        private void chkLoop_CheckedChanged(object sender, EventArgs e)
+        private void ChkLoopCheckedChanged(object sender, EventArgs e)
         {
             player.LoopTrack = chkLoop.Checked;
         }
-
-        private void chkShuffle_CheckedChanged(object sender, EventArgs e)
+        private void ChkShuffleCheckedChanged(object sender, EventArgs e)
         {
             player.Shuffle = chkShuffle.Checked;
         }
-
-        private void playbackTimer_Tick(object sender, EventArgs e)
+        private void PlaybackTimerTick(object sender, EventArgs e)
         {
-            double current = player.GetCurrentPositionSeconds(); double total = player.GetTotalDurationSeconds();
+            double current = player.GetCurrentPositionSeconds();
+            double total = player.GetTotalDurationSeconds();
             int curMin = (int)current / 60;
             int curSec = (int)current % 60;
             int totMin = (int)total / 60;
@@ -321,7 +316,7 @@ namespace RAndG
                 }
                 else
                 {
-                    btnNext_Click(null, null);
+                    BtnNextClick(null, null);
                 }
             }
         }

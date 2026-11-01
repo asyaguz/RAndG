@@ -6,12 +6,10 @@ namespace RAndG.Player
     public class StandardPlayer
     {
         private MusicPlayer internalPlayer;
-
         public StandardPlayer(MusicPlayer player)
         {
             this.internalPlayer = player;
         }
-
         public void PlaySingleFile(string filePath)
         {
             if (string.IsNullOrEmpty(filePath) == false)

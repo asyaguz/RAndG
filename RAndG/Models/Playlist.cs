@@ -8,7 +8,6 @@ namespace RAndG.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public List<Track> Tracks { get; set; }
-
         public Playlist(int id, string name)
         {
             this.Id = id;

@@ -11,17 +11,14 @@ namespace RAndG.Player
         private List<string> currentQueue;
         private int currentIndex;
         private int currentVolumePercent;
-
         public bool LoopTrack { get; set; }
         public bool Shuffle { get; set; }
-
         public MusicPlayer()
         {
             currentQueue = new List<string>();
             currentIndex = -1;
             currentVolumePercent = 50;
         }
-
         public void SetQueue(List<string> filePaths, int startIndex)
         {
             currentQueue.Clear();
@@ -31,7 +28,6 @@ namespace RAndG.Player
             }
             currentIndex = startIndex;
         }
-
         public string GetCurrentTrackPath()
         {
             if (currentIndex >= 0 && currentIndex < currentQueue.Count)
@@ -40,25 +36,21 @@ namespace RAndG.Player
             }
             return null;
         }
-
+        // Принудительное уничтожение предыдущих потоков исключает аппаратное перекрытие каналов
         public void Play()
         {
             string currentPath = GetCurrentTrackPath();
             if (string.IsNullOrEmpty(currentPath) == false)
             {
                 Stop();
-
                 outputDevice = new WaveOutEvent();
                 fileReader = new AudioFileReader(currentPath);
-
                 float volumeFloat = currentVolumePercent / 100f;
                 fileReader.Volume = volumeFloat;
-
                 outputDevice.Init(fileReader);
                 outputDevice.Play();
             }
         }
-
         public void Pause()
         {
             if (outputDevice != null)
@@ -66,7 +58,6 @@ namespace RAndG.Player
                 outputDevice.Pause();
             }
         }
-
         public void Resume()
         {
             if (outputDevice != null)
@@ -74,7 +65,7 @@ namespace RAndG.Player
                 outputDevice.Play();
             }
         }
-
+        // Метод очистки ресурсов обязателен для предотвращения удержания файлов ОС
         public void Stop()
         {
             if (outputDevice != null)
@@ -89,11 +80,9 @@ namespace RAndG.Player
                 fileReader = null;
             }
         }
-
         public void Next()
         {
             if (currentQueue.Count == 0) return;
-
             if (Shuffle)
             {
                 Random rand = new Random();
@@ -109,11 +98,9 @@ namespace RAndG.Player
             }
             Play();
         }
-
         public void Previous()
         {
             if (currentQueue.Count == 0) return;
-
             currentIndex = currentIndex - 1;
             if (currentIndex < 0)
             {
@@ -121,7 +108,6 @@ namespace RAndG.Player
             }
             Play();
         }
-
         public void SetVolume(int volumePercent)
         {
             currentVolumePercent = volumePercent;
@@ -131,7 +117,6 @@ namespace RAndG.Player
                 fileReader.Volume = volumeFloat;
             }
         }
-
         public double GetCurrentPositionSeconds()
         {
             if (fileReader != null)
@@ -140,7 +125,6 @@ namespace RAndG.Player
             }
             return 0.0;
         }
-
         public double GetTotalDurationSeconds()
         {
             if (fileReader != null)
@@ -149,7 +133,6 @@ namespace RAndG.Player
             }
             return 0.0;
         }
-
         public void SetPositionSeconds(double seconds)
         {
             if (fileReader != null)

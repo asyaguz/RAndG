@@ -6,18 +6,16 @@ namespace RAndG.Services
     public class PerformanceMonitor
     {
         private Stopwatch watch;
-
         public PerformanceMonitor()
         {
             watch = new Stopwatch();
         }
-
         public void StartMeasure()
         {
             watch.Reset();
             watch.Start();
         }
-
+        // Вывод времени в миллисекундах подтверждает соблюдение нефункциональных требований по задержкам
         public void EndMeasure(string operationName)
         {
             watch.Stop();
