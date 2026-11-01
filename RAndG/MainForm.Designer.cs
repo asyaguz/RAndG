@@ -2,15 +2,8 @@
 {
     partial class MainForm
     {
-        /// <summary>
-        ///  Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,20 +13,382 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        ///  Required method for Designer support - do not modify
-        ///  the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Text = "Form1";
-        }
+            this.lstLibrary = new System.Windows.Forms.ListBox();
+            this.lstPlaylists = new System.Windows.Forms.ListBox();
+            this.lstPlaylistTracks = new System.Windows.Forms.ListBox();
+            this.btnAddTrack = new System.Windows.Forms.Button();
+            this.btnDeleteTrack = new System.Windows.Forms.Button();
+            this.btnPlay = new System.Windows.Forms.Button();
+            this.btnPause = new System.Windows.Forms.Button();
+            this.btnStop = new System.Windows.Forms.Button();
+            this.btnNext = new System.Windows.Forms.Button();
+            this.btnPrev = new System.Windows.Forms.Button();
+            this.txtSearch = new System.Windows.Forms.TextBox();
+            this.btnSearch = new System.Windows.Forms.Button();
+            this.btnClearSearch = new System.Windows.Forms.Button();
+            this.btnCreatePlaylist = new System.Windows.Forms.Button();
+            this.txtPlaylistName = new System.Windows.Forms.TextBox();
+            this.btnAddTrackToP = new System.Windows.Forms.Button();
+            this.btnRemoveTrackFromP = new System.Windows.Forms.Button();
+            this.btnDeletePlaylist = new System.Windows.Forms.Button();
+            this.trackVolume = new System.Windows.Forms.TrackBar();
+            this.trackProgress = new System.Windows.Forms.TrackBar();
+            this.lblCurrentTrack = new System.Windows.Forms.Label();
+            this.lblTime = new System.Windows.Forms.Label();
+            this.playbackTimer = new System.Windows.Forms.Timer();
+            this.chkLoop = new System.Windows.Forms.CheckBox();
+            this.chkShuffle = new System.Windows.Forms.CheckBox();
+            this.lblTitleLibrary = new System.Windows.Forms.Label();
+            this.lblTitlePlaylists = new System.Windows.Forms.Label();
+            this.lblTitleTracksInP = new System.Windows.Forms.Label();
+            ((System.ComponentModel.ISupportInitialize)(this.trackVolume)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackProgress)).BeginInit();
+            this.SuspendLayout();
 
-        #endregion
+            this.lblTitleLibrary.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblTitleLibrary.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.lblTitleLibrary.Location = new System.Drawing.Point(12, 55);
+            this.lblTitleLibrary.Name = "lblTitleLibrary";
+            this.lblTitleLibrary.Size = new System.Drawing.Size(250, 20);
+            this.lblTitleLibrary.TabIndex = 0;
+            this.lblTitleLibrary.Text = " Моя медиатека (А-Я)";
+
+            this.lblTitlePlaylists.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblTitlePlaylists.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.lblTitlePlaylists.Location = new System.Drawing.Point(280, 55);
+            this.lblTitlePlaylists.Name = "lblTitlePlaylists";
+            this.lblTitlePlaylists.Size = new System.Drawing.Size(180, 20);
+            this.lblTitlePlaylists.TabIndex = 1;
+            this.lblTitlePlaylists.Text = " Плейлисты";
+
+            this.lblTitleTracksInP.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblTitleTracksInP.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.lblTitleTracksInP.Location = new System.Drawing.Point(280, 225);
+            this.lblTitleTracksInP.Name = "lblTitleTracksInP";
+            this.lblTitleTracksInP.Size = new System.Drawing.Size(180, 20);
+            this.lblTitleTracksInP.TabIndex = 2;
+            this.lblTitleTracksInP.Text = " Треки в плейлисте";
+
+            this.lstLibrary.BackColor = System.Drawing.Color.White;
+            this.lstLibrary.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lstLibrary.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lstLibrary.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.lstLibrary.ItemHeight = 17;
+            this.lstLibrary.Location = new System.Drawing.Point(12, 80);
+            this.lstLibrary.Name = "lstLibrary";
+            this.lstLibrary.Size = new System.Drawing.Size(250, 221);
+            this.lstLibrary.TabIndex = 3;
+
+            this.lstPlaylists.BackColor = System.Drawing.Color.White;
+            this.lstPlaylists.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lstPlaylists.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lstPlaylists.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.lstPlaylists.ItemHeight = 17;
+            this.lstPlaylists.Location = new System.Drawing.Point(280, 80);
+            this.lstPlaylists.Name = "lstPlaylists";
+            this.lstPlaylists.Size = new System.Drawing.Size(180, 102);
+            this.lstPlaylists.TabIndex = 4;
+            this.lstPlaylists.SelectedIndexChanged += new System.EventHandler(this.lstPlaylists_SelectedIndexChanged);
+
+            this.lstPlaylistTracks.BackColor = System.Drawing.Color.White;
+            this.lstPlaylistTracks.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lstPlaylistTracks.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lstPlaylistTracks.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.lstPlaylistTracks.ItemHeight = 17;
+            this.lstPlaylistTracks.Location = new System.Drawing.Point(280, 250);
+            this.lstPlaylistTracks.Name = "lstPlaylistTracks";
+            this.lstPlaylistTracks.Size = new System.Drawing.Size(180, 102);
+            this.lstPlaylistTracks.TabIndex = 5;
+
+            this.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.txtSearch.Location = new System.Drawing.Point(12, 20);
+            this.txtSearch.Name = "txtSearch";
+            this.txtSearch.Size = new System.Drawing.Size(120, 24);
+            this.txtSearch.TabIndex = 6;
+
+            this.btnSearch.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnSearch.FlatAppearance.BorderSize = 0;
+            this.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSearch.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnSearch.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnSearch.Location = new System.Drawing.Point(138, 19);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(58, 25);
+            this.btnSearch.TabIndex = 7;
+            this.btnSearch.Text = "Поиск";
+            this.btnSearch.UseVisualStyleBackColor = false;
+            this.btnSearch.Click += new System.EventHandler(this.btnSearch_Click);
+
+            this.btnClearSearch.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnClearSearch.FlatAppearance.BorderSize = 0;
+            this.btnClearSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClearSearch.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnClearSearch.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnClearSearch.Location = new System.Drawing.Point(202, 19);
+            this.btnClearSearch.Name = "btnClearSearch";
+            this.btnClearSearch.Size = new System.Drawing.Size(66, 25);
+            this.btnClearSearch.TabIndex = 8;
+            this.btnClearSearch.Text = "Сброс";
+            this.btnClearSearch.UseVisualStyleBackColor = false;
+            this.btnClearSearch.Click += new System.EventHandler(this.btnClearSearch_Click);
+
+            this.txtPlaylistName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtPlaylistName.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.txtPlaylistName.Location = new System.Drawing.Point(280, 20);
+            this.txtPlaylistName.Name = "txtPlaylistName";
+            this.txtPlaylistName.Size = new System.Drawing.Size(110, 24);
+            this.txtPlaylistName.TabIndex = 9;
+
+            this.btnCreatePlaylist.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnCreatePlaylist.FlatAppearance.BorderSize = 0;
+            this.btnCreatePlaylist.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCreatePlaylist.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnCreatePlaylist.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnCreatePlaylist.Location = new System.Drawing.Point(396, 19);
+            this.btnCreatePlaylist.Name = "btnCreatePlaylist";
+            this.btnCreatePlaylist.Size = new System.Drawing.Size(64, 25);
+            this.btnCreatePlaylist.TabIndex = 10;
+            this.btnCreatePlaylist.Text = "Создать";
+            this.btnCreatePlaylist.UseVisualStyleBackColor = false;
+            this.btnCreatePlaylist.Click += new System.EventHandler(this.btnCreatePlaylist_Click);
+
+            this.btnAddTrack.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnAddTrack.FlatAppearance.BorderSize = 0;
+            this.btnAddTrack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddTrack.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnAddTrack.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnAddTrack.Location = new System.Drawing.Point(12, 320);
+            this.btnAddTrack.Name = "btnAddTrack";
+            this.btnAddTrack.Size = new System.Drawing.Size(120, 30);
+            this.btnAddTrack.TabIndex = 11;
+            this.btnAddTrack.Text = "Добавить файл";
+            this.btnAddTrack.UseVisualStyleBackColor = false;
+            this.btnAddTrack.Click += new System.EventHandler(this.btnAddTrack_Click);
+            this.btnDeleteTrack.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnDeleteTrack.FlatAppearance.BorderSize = 0;
+            this.btnDeleteTrack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDeleteTrack.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnDeleteTrack.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnDeleteTrack.Location = new System.Drawing.Point(142, 320);
+            this.btnDeleteTrack.Name = "btnDeleteTrack";
+            this.btnDeleteTrack.Size = new System.Drawing.Size(120, 30);
+            this.btnDeleteTrack.TabIndex = 12;
+            this.btnDeleteTrack.Text = "Удалить трек";
+            this.btnDeleteTrack.UseVisualStyleBackColor = false;
+            this.btnDeleteTrack.Click += new System.EventHandler(this.btnDeleteTrack_Click);
+            this.btnAddTrackToP.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnAddTrackToP.FlatAppearance.BorderSize = 0;
+            this.btnAddTrackToP.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAddTrackToP.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnAddTrackToP.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnAddTrackToP.Location = new System.Drawing.Point(12, 360);
+            this.btnAddTrackToP.Name = "btnAddTrackToP";
+            this.btnAddTrackToP.Size = new System.Drawing.Size(250, 32);
+            this.btnAddTrackToP.TabIndex = 13;
+            this.btnAddTrackToP.Text = "Добавить в плейлист";
+            this.btnAddTrackToP.UseVisualStyleBackColor = false;
+            this.btnAddTrackToP.Click += new System.EventHandler(this.btnAddTrackToP_Click);
+            this.btnDeletePlaylist.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnDeletePlaylist.FlatAppearance.BorderSize = 0;
+            this.btnDeletePlaylist.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDeletePlaylist.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnDeletePlaylist.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnDeletePlaylist.Location = new System.Drawing.Point(280, 195);
+            this.btnDeletePlaylist.Name = "btnDeletePlaylist";
+            this.btnDeletePlaylist.Size = new System.Drawing.Size(180, 26);
+            this.btnDeletePlaylist.TabIndex = 14;
+            this.btnDeletePlaylist.Text = " Удалить плейлист";
+            this.btnDeletePlaylist.UseVisualStyleBackColor = false;
+            this.btnDeletePlaylist.Click += new System.EventHandler(this.btnDeletePlaylist_Click);
+            this.btnRemoveTrackFromP.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnRemoveTrackFromP.FlatAppearance.BorderSize = 0;
+            this.btnRemoveTrackFromP.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRemoveTrackFromP.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.btnRemoveTrackFromP.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnRemoveTrackFromP.Location = new System.Drawing.Point(280, 366);
+            this.btnRemoveTrackFromP.Name = "btnRemoveTrackFromP";
+            this.btnRemoveTrackFromP.Size = new System.Drawing.Size(180, 26);
+            this.btnRemoveTrackFromP.TabIndex = 15;
+            this.btnRemoveTrackFromP.Text = "Исключить трек";
+            this.btnRemoveTrackFromP.UseVisualStyleBackColor = false;
+            this.btnRemoveTrackFromP.Click += new System.EventHandler(this.btnRemoveTrackFromP_Click);
+            this.trackProgress.BackColor = System.Drawing.Color.FromArgb(242, 241, 246);
+            this.trackProgress.Location = new System.Drawing.Point(12, 400);
+            this.trackProgress.Name = "trackProgress";
+            this.trackProgress.Size = new System.Drawing.Size(448, 45);
+            this.trackProgress.TabIndex = 16;
+            this.trackProgress.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.trackProgress.Scroll += new System.EventHandler(this.trackProgress_Scroll);
+            this.lblCurrentTrack.AutoSize = true;
+            this.lblCurrentTrack.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblCurrentTrack.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.lblCurrentTrack.Location = new System.Drawing.Point(12, 440);
+            this.lblCurrentTrack.Name = "lblCurrentTrack";
+            this.lblCurrentTrack.Size = new System.Drawing.Size(127, 19);
+            this.lblCurrentTrack.TabIndex = 17;
+            this.lblCurrentTrack.Text = "Сейчас играет: -";
+            this.lblTime.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblTime.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.lblTime.Location = new System.Drawing.Point(350, 440);
+            this.lblTime.Name = "lblTime";
+            this.lblTime.Size = new System.Drawing.Size(110, 20);
+            this.lblTime.TabIndex = 18;
+            this.lblTime.Text = "00:00 / 00:00";
+            this.lblTime.TextAlign = System.Drawing.ContentAlignment.TopRight;
+            this.btnPrev.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnPrev.FlatAppearance.BorderSize = 0;
+            this.btnPrev.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPrev.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnPrev.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnPrev.Location = new System.Drawing.Point(12, 470);
+            this.btnPrev.Name = "btnPrev";
+            this.btnPrev.Size = new System.Drawing.Size(42, 32);
+            this.btnPrev.TabIndex = 19;
+            this.btnPrev.Text = "⏮";
+            this.btnPrev.UseVisualStyleBackColor = false;
+            this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
+            this.btnPlay.BackColor = System.Drawing.Color.FromArgb(204, 226, 214);
+            this.btnPlay.FlatAppearance.BorderSize = 0;
+            this.btnPlay.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPlay.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnPlay.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnPlay.Location = new System.Drawing.Point(60, 470);
+            this.btnPlay.Name = "btnPlay";
+            this.btnPlay.Size = new System.Drawing.Size(55, 32);
+            this.btnPlay.TabIndex = 20;
+            this.btnPlay.Text = "▶";
+            this.btnPlay.UseVisualStyleBackColor = false;
+            this.btnPlay.Click += new System.EventHandler(this.btnPlay_Click);
+            this.btnPause.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnPause.FlatAppearance.BorderSize = 0;
+            this.btnPause.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPause.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnPause.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnPause.Location = new System.Drawing.Point(121, 470);
+            this.btnPause.Name = "btnPause";
+            this.btnPause.Size = new System.Drawing.Size(46, 32);
+            this.btnPause.TabIndex = 21;
+            this.btnPause.Text = "⏸";
+            this.btnPause.UseVisualStyleBackColor = false;
+            this.btnPause.Click += new System.EventHandler(this.btnPause_Click);
+            this.btnStop.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnStop.FlatAppearance.BorderSize = 0;
+            this.btnStop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnStop.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnStop.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnStop.Location = new System.Drawing.Point(173, 470);
+            this.btnStop.Name = "btnStop";
+            this.btnStop.Size = new System.Drawing.Size(46, 32);
+            this.btnStop.TabIndex = 22;
+            this.btnStop.Text = "⏹";
+            this.btnStop.UseVisualStyleBackColor = false;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
+            this.btnNext.BackColor = System.Drawing.Color.FromArgb(223, 219, 237);
+            this.btnNext.FlatAppearance.BorderSize = 0;
+            this.btnNext.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnNext.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnNext.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.btnNext.Location = new System.Drawing.Point(225, 470);
+            this.btnNext.Name = "btnNext";
+            this.btnNext.Size = new System.Drawing.Size(42, 32);
+            this.btnNext.TabIndex = 23;
+            this.btnNext.Text = "⏭";
+            this.btnNext.UseVisualStyleBackColor = false;
+            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
+            this.trackVolume.BackColor = System.Drawing.Color.FromArgb(242, 241, 246);
+            this.trackVolume.Location = new System.Drawing.Point(280, 470);
+            this.trackVolume.Maximum = 100;
+            this.trackVolume.Name = "trackVolume";
+            this.trackVolume.Size = new System.Drawing.Size(180, 45);
+            this.trackVolume.TabIndex = 24;
+            this.trackVolume.Value = 50;
+            this.trackVolume.Scroll += new System.EventHandler(this.trackVolume_Scroll);
+            this.chkLoop.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.chkLoop.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.chkLoop.Location = new System.Drawing.Point(15, 515);
+            this.chkLoop.Name = "chkLoop";
+            this.chkLoop.Size = new System.Drawing.Size(120, 20);
+            this.chkLoop.TabIndex = 25;
+            this.chkLoop.Text = "Повтор трека";
+            this.chkLoop.UseVisualStyleBackColor = true;
+            this.chkLoop.CheckedChanged += new System.EventHandler(this.chkLoop_CheckedChanged);
+            this.chkShuffle.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.chkShuffle.ForeColor = System.Drawing.Color.FromArgb(70, 68, 81);
+            this.chkShuffle.Location = new System.Drawing.Point(145, 515);
+            this.chkShuffle.Name = "chkShuffle";
+            this.chkShuffle.Size = new System.Drawing.Size(150, 20);
+            this.chkShuffle.TabIndex = 26;
+            this.chkShuffle.Text = "Случайный порядок";
+            this.chkShuffle.UseVisualStyleBackColor = true;
+            this.chkShuffle.CheckedChanged += new System.EventHandler(this.chkShuffle_CheckedChanged);
+            this.playbackTimer.Interval = 500;
+            this.playbackTimer.Tick += new System.EventHandler(this.playbackTimer_Tick);
+            this.BackColor = System.Drawing.Color.FromArgb(242, 241, 246);
+            this.ClientSize = new System.Drawing.Size(480, 550);
+            this.Controls.Add(this.lblTitleLibrary);
+            this.Controls.Add(this.lblTitlePlaylists);
+            this.Controls.Add(this.lblTitleTracksInP);
+            this.Controls.Add(this.lstLibrary);
+            this.Controls.Add(this.lstPlaylists);
+            this.Controls.Add(this.lstPlaylistTracks);
+            this.Controls.Add(this.btnAddTrack);
+            this.Controls.Add(this.btnDeleteTrack);
+            this.Controls.Add(this.txtSearch);
+            this.Controls.Add(this.btnSearch);
+            this.Controls.Add(this.btnClearSearch);
+            this.Controls.Add(this.txtPlaylistName);
+            this.Controls.Add(this.btnCreatePlaylist);
+            this.Controls.Add(this.btnDeletePlaylist);
+            this.Controls.Add(this.btnAddTrackToP);
+            this.Controls.Add(this.btnRemoveTrackFromP);
+            this.Controls.Add(this.btnPrev);
+            this.Controls.Add(this.btnPlay);
+            this.Controls.Add(this.btnPause);
+            this.Controls.Add(this.btnStop);
+            this.Controls.Add(this.btnNext);
+            this.Controls.Add(this.trackVolume);
+            this.Controls.Add(this.trackProgress);
+            this.Controls.Add(this.lblCurrentTrack);
+            this.Controls.Add(this.lblTime);
+            this.Controls.Add(this.chkLoop);
+            this.Controls.Add(this.chkShuffle);
+            this.Name = "MainForm";
+            this.Text = "R&G Музыкальный Плеер";
+            ((System.ComponentModel.ISupportInitialize)(this.trackVolume)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackProgress)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+        }
+        private System.Windows.Forms.ListBox lstLibrary;
+        private System.Windows.Forms.ListBox lstPlaylists;
+        private System.Windows.Forms.ListBox lstPlaylistTracks;
+        private System.Windows.Forms.Button btnAddTrack;
+        private System.Windows.Forms.Button btnDeleteTrack;
+        private System.Windows.Forms.Button btnPlay;
+        private System.Windows.Forms.Button btnPause;
+        private System.Windows.Forms.Button btnStop;
+        private System.Windows.Forms.Button btnNext;
+        private System.Windows.Forms.Button btnPrev;
+        private System.Windows.Forms.TextBox txtSearch;
+        private System.Windows.Forms.Button btnSearch;
+        private System.Windows.Forms.Button btnClearSearch;
+        private System.Windows.Forms.Button btnCreatePlaylist;
+        private System.Windows.Forms.TextBox txtPlaylistName;
+        private System.Windows.Forms.Button btnAddTrackToP;
+        private System.Windows.Forms.Button btnRemoveTrackFromP;
+        private System.Windows.Forms.Button btnDeletePlaylist;
+        private System.Windows.Forms.TrackBar trackVolume;
+        private System.Windows.Forms.TrackBar trackProgress;
+        private System.Windows.Forms.Label lblCurrentTrack;
+        private System.Windows.Forms.Label lblTime;
+        private System.Windows.Forms.Timer playbackTimer;
+        private System.Windows.Forms.CheckBox chkLoop;
+        private System.Windows.Forms.CheckBox chkShuffle;
+        private System.Windows.Forms.Label lblTitleLibrary;
+        private System.Windows.Forms.Label lblTitlePlaylists;
+        private System.Windows.Forms.Label lblTitleTracksInP;
     }
 }

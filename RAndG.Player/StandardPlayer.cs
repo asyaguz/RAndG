@@ -1,77 +1,26 @@
 ﻿using System;
-namespace RAndG.Players
+using System.Collections.Generic;
 
+namespace RAndG.Player
 {
-
-    internal class StandardPlayer : IDisposable
+    public class StandardPlayer
     {
-        private readonly MusicPlayer musicPlayer = new();
+        private MusicPlayer internalPlayer;
 
-        public bool IsPlaying => musicPlayer.IsPlaying;
-
-        public bool IsPaused => musicPlayer.IsPaused;
-
-        public TimeSpan CurrentTime => musicPlayer.CurrentTime;
-
-        public TimeSpan TotalTime => musicPlayer.TotalTime;
-
-        public void Play(string filePath)
-
+        public StandardPlayer(MusicPlayer player)
         {
-
-            musicPlayer.Play(filePath);
-
+            this.internalPlayer = player;
         }
 
-        public void Pause()
-
+        public void PlaySingleFile(string filePath)
         {
-
-            musicPlayer.Pause();
-
+            if (string.IsNullOrEmpty(filePath) == false)
+            {
+                List<string> singleQueue = new List<string>();
+                singleQueue.Add(filePath);
+                internalPlayer.SetQueue(singleQueue, 0);
+                internalPlayer.Play();
+            }
         }
-
-        public void Resume()
-
-        {
-
-            musicPlayer.Resume();
-
-        }
-
-        public void Stop()
-
-        {
-
-            musicPlayer.Stop();
-
-        }
-
-        public void SetVolume(float volume)
-
-        {
-
-            musicPlayer.SetVolume(volume);
-
-        }
-
-        public void Seek(TimeSpan position)
-
-        {
-
-            musicPlayer.Seek(position);
-
-        }
-
-        public void Dispose()
-
-        {
-
-            musicPlayer.Dispose();
-
-        }
-
     }
-
 }
- 

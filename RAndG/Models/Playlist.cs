@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RAndG.Models
 {
@@ -10,10 +7,13 @@ namespace RAndG.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<Track> Tracks { get; set; } = new();
-        public override string ToString()
+        public List<Track> Tracks { get; set; }
+
+        public Playlist(int id, string name)
         {
-            return Name;
+            this.Id = id;
+            this.Name = name;
+            this.Tracks = new List<Track>();
         }
     }
 }

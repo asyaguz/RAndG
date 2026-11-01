@@ -1,46 +1,80 @@
 ﻿using System;
+using System.Collections.Generic;
 using NAudio.Wave;
-namespace RAndG.Players
+
+namespace RAndG.Player
 {
-    internal class MusicPlayer : IDisposable
+    public class MusicPlayer
     {
-        private WaveOutEvent? outputDevice;
-        private AudioFileReader? audioFile;
-        private float volume = 0.7f;
-        public bool IsPlaying => outputDevice?.PlaybackState == PlaybackState.Playing;
-        public bool IsPaused => outputDevice?.PlaybackState == PlaybackState.Paused;
-        public TimeSpan CurrentTime => audioFile?.CurrentTime ?? TimeSpan.Zero;
-        public TimeSpan TotalTime => audioFile?.TotalTime ?? TimeSpan.Zero;
-        public void Play(string filePath)
+        private AudioFileReader fileReader;
+        private WaveOutEvent outputDevice;
+        private List<string> currentQueue;
+        private int currentIndex;
+        private int currentVolumePercent;
+
+        public bool LoopTrack { get; set; }
+        public bool Shuffle { get; set; }
+
+        public MusicPlayer()
         {
-            Stop();
-            try
+            currentQueue = new List<string>();
+            currentIndex = -1;
+            currentVolumePercent = 50;
+        }
+
+        public void SetQueue(List<string> filePaths, int startIndex)
+        {
+            currentQueue.Clear();
+            foreach (string path in filePaths)
             {
-                audioFile = new AudioFileReader(filePath);
-                audioFile.Volume = volume;
-                outputDevice = new WaveOutEvent();
-                outputDevice.Init(audioFile);
-                outputDevice.Play();
+                currentQueue.Add(path);
             }
-            catch
+            currentIndex = startIndex;
+        }
+
+        public string GetCurrentTrackPath()
+        {
+            if (currentIndex >= 0 && currentIndex < currentQueue.Count)
+            {
+                return currentQueue[currentIndex];
+            }
+            return null;
+        }
+
+        public void Play()
+        {
+            string currentPath = GetCurrentTrackPath();
+            if (string.IsNullOrEmpty(currentPath) == false)
             {
                 Stop();
-                throw;
-            }
-        }
-        public void Pause()
-        {
-            outputDevice?.Pause();
-        }
-        public void Resume()
-        {
-            if (outputDevice != null && audioFile != null)
-            {
-                if (audioFile.CurrentTime >= audioFile.TotalTime)
-                    audioFile.CurrentTime = TimeSpan.Zero;
+
+                outputDevice = new WaveOutEvent();
+                fileReader = new AudioFileReader(currentPath);
+
+                float volumeFloat = currentVolumePercent / 100f;
+                fileReader.Volume = volumeFloat;
+
+                outputDevice.Init(fileReader);
                 outputDevice.Play();
             }
         }
+
+        public void Pause()
+        {
+            if (outputDevice != null)
+            {
+                outputDevice.Pause();
+            }
+        }
+
+        public void Resume()
+        {
+            if (outputDevice != null)
+            {
+                outputDevice.Play();
+            }
+        }
+
         public void Stop()
         {
             if (outputDevice != null)
@@ -49,25 +83,79 @@ namespace RAndG.Players
                 outputDevice.Dispose();
                 outputDevice = null;
             }
-            audioFile?.Dispose();
-            audioFile = null;
+            if (fileReader != null)
+            {
+                fileReader.Dispose();
+                fileReader = null;
+            }
         }
-        public void SetVolume(float value)
+
+        public void Next()
         {
-            volume = Math.Clamp(value, 0f, 1f);
-            if (audioFile != null)
-                audioFile.Volume = volume;
+            if (currentQueue.Count == 0) return;
+
+            if (Shuffle)
+            {
+                Random rand = new Random();
+                currentIndex = rand.Next(0, currentQueue.Count);
+            }
+            else
+            {
+                currentIndex = currentIndex + 1;
+                if (currentIndex >= currentQueue.Count)
+                {
+                    currentIndex = 0;
+                }
+            }
+            Play();
         }
-        public void Seek(TimeSpan position)
+
+        public void Previous()
         {
-            if (audioFile == null)
-                return;
-            double milliseconds = Math.Clamp(position.TotalMilliseconds, 0, audioFile.TotalTime.TotalMilliseconds);
-            audioFile.CurrentTime = TimeSpan.FromMilliseconds(milliseconds);
+            if (currentQueue.Count == 0) return;
+
+            currentIndex = currentIndex - 1;
+            if (currentIndex < 0)
+            {
+                currentIndex = currentQueue.Count - 1;
+            }
+            Play();
         }
-        public void Dispose()
+
+        public void SetVolume(int volumePercent)
         {
-            Stop();
+            currentVolumePercent = volumePercent;
+            if (fileReader != null)
+            {
+                float volumeFloat = volumePercent / 100f;
+                fileReader.Volume = volumeFloat;
+            }
+        }
+
+        public double GetCurrentPositionSeconds()
+        {
+            if (fileReader != null)
+            {
+                return fileReader.CurrentTime.TotalSeconds;
+            }
+            return 0.0;
+        }
+
+        public double GetTotalDurationSeconds()
+        {
+            if (fileReader != null)
+            {
+                return fileReader.TotalTime.TotalSeconds;
+            }
+            return 0.0;
+        }
+
+        public void SetPositionSeconds(double seconds)
+        {
+            if (fileReader != null)
+            {
+                fileReader.CurrentTime = TimeSpan.FromSeconds(seconds);
+            }
         }
     }
 }
