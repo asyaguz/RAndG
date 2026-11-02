@@ -7,28 +7,34 @@ namespace RAndG.Services
 {
     public class PlaylistService
     {
+        // Класс для управления плейлистами и композициями внутри них
         private List<Playlist> playlists;
         private Database db;
         private List<Track> mainLibraryTracks;
+        // Создает сервис управления плейлистами и загружает существующие плейлисты
         public PlaylistService(Database database, List<Track> allTracks)
         {
             this.db = database;
             this.mainLibraryTracks = allTracks;
             RefreshPlaylists();
         }
+        // Обновляет список плейлистов данными из базы данных
         public void RefreshPlaylists()
         {
             this.playlists = db.LoadPlaylists(mainLibraryTracks);
         }
+        // Возвращает список всех плейлистов
         public List<Playlist> GetPlaylists()
         {
             return this.playlists;
         }
+        // Создает новый плейлист с указанным названием
         public void CreatePlaylist(string name)
         {
             db.CreatePlaylist(name);
             RefreshPlaylists();
         }
+        // Удаляет плейлист по его идентификатору
         public void DeletePlaylist(int playlistId)
         {
             db.DeletePlaylist(playlistId);
@@ -59,6 +65,7 @@ namespace RAndG.Services
                 }
             }
         }
+        // Удаляет композицию из выбранного плейлиста
         public void RemoveTrackFromPlaylist(int playlistId, int trackId)
         {
             db.RemoveTrackFromPlaylist(playlistId, trackId);

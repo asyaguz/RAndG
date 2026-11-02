@@ -8,6 +8,7 @@ using RAndG.Player;
 
 namespace RAndG
 {
+    // Главная форма приложения
     public partial class MainForm : Form
     {
         private Database db;
@@ -17,6 +18,7 @@ namespace RAndG
         private AudioFileValidator validator;
         private PerformanceMonitor monitor;
         private List<Track> activeLibraryList;
+        // Создает главную форму, инициализирует необходимые объекты и настраивает внешний вид приложения
         public MainForm()
         {
             InitializeComponent();
@@ -28,7 +30,6 @@ namespace RAndG
             monitor = new PerformanceMonitor();
             UpdateLibraryUI(library.GetAllTracks());
             UpdatePlaylistsUI();
-            // Устанавливаем лавандовую палитру при запуске
             this.BackColor = Color.FromArgb(242, 241, 246);
             Color buttonColor = Color.FromArgb(223, 219, 237);
             Color textColor = Color.FromArgb(70, 68, 81);
@@ -52,6 +53,7 @@ namespace RAndG
             btnPlay.FlatAppearance.BorderSize = 0;
             btnPlay.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
         }
+        // Обновляет отображение музыкальной библиотеки. Добавляет названия всех переданных композиций в список
         private void UpdateLibraryUI(List<Track> tracks)
         {
             activeLibraryList = tracks;
@@ -61,6 +63,7 @@ namespace RAndG
                 lstLibrary.Items.Add(t.Title);
             }
         }
+        // Обновляет отображение плейлистов на главной форме
         private void UpdatePlaylistsUI()
         {
             lstPlaylists.Items.Clear();
@@ -70,6 +73,7 @@ namespace RAndG
                 lstPlaylists.Items.Add(p.Name);
             }
         }
+        // Обрабатывает нажатие кнопки добавления музыкального файла. Открывает окно выбора файла
         private void BtnAddTrackClick(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
@@ -101,6 +105,7 @@ namespace RAndG
                 }
             }
         }
+        // Обрабатывает удаление выбранной композиции из музыкальной библиотеки
         private void BtnDeleteTrackClick(object sender, EventArgs e)
         {
             int index = lstLibrary.SelectedIndex;
@@ -113,6 +118,7 @@ namespace RAndG
                 lstPlaylistTracks.Items.Clear();
             }
         }
+        // Обрабатывает нажатие кнопки поиска композиций
         private void BtnSearchClick(object sender, EventArgs e)
         {
             monitor.StartMeasure();
@@ -124,11 +130,13 @@ namespace RAndG
             }
             monitor.EndMeasure("Поиск в базе данных");
         }
+        // Обрабатывает сброс поискового запроса
         private void BtnClearSearchClick(object sender, EventArgs e)
         {
             txtSearch.Text = "";
             UpdateLibraryUI(library.GetAllTracks());
         }
+        // Обрабатывает создание нового плейлиста
         private void BtnCreatePlaylistClick(object sender, EventArgs e)
         {
             string name = txtPlaylistName.Text;
@@ -139,6 +147,7 @@ namespace RAndG
                 txtPlaylistName.Text = "";
             }
         }
+        // Обрабатывает удаление выбранного плейлиста
         private void BtnDeletePlaylistClick(object sender, EventArgs e)
         {
             int index = lstPlaylists.SelectedIndex;
@@ -151,6 +160,7 @@ namespace RAndG
                 lstPlaylistTracks.Items.Clear();
             }
         }
+        // Обрабатывает изменение выбранного плейлиста. Отображает композиции, которые входят в него
         private void LstPlaylistsSelectedIndexChanged(object sender, EventArgs e)
         {
             int index = lstPlaylists.SelectedIndex;
@@ -166,6 +176,7 @@ namespace RAndG
                 }
             }
         }
+        // Обрабатывает добавление выбранной композиции в выбранный плейлист
         private void BtnAddTrackToPClick(object sender, EventArgs e)
         {
             int trackIndex = lstLibrary.SelectedIndex;
@@ -183,6 +194,7 @@ namespace RAndG
                 MessageBox.Show("Пожалуйста, выберите трек слева и плейлист справа!", "Подсказка", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+        // Обрабатывает удаление композиции из выбранного плейлиста
         private void BtnRemoveTrackFromPClick(object sender, EventArgs e)
         {
             int playlistIndex = lstPlaylists.SelectedIndex;
@@ -196,6 +208,7 @@ namespace RAndG
                 LstPlaylistsSelectedIndexChanged(null, null);
             }
         }
+        // Обрабатывает нажатие кнопки воспроизведения. Устанавливает очередь композиций и запускает выбранный аудиофайл
         private void BtnPlayClick(object sender, EventArgs e)
         {
             int index = lstLibrary.SelectedIndex;
@@ -227,10 +240,12 @@ namespace RAndG
                 }
             }
         }
+        // Обрабатывает нажатие кнопки паузы и приостанавливает воспроизведение
         private void BtnPauseClick(object sender, EventArgs e)
         {
             player.Pause();
         }
+        // Обрабатывает остановку воспроизведения. Останавливает таймер и сбрасывает индикатор времени
         private void BtnStopClick(object sender, EventArgs e)
         {
             player.Stop();
@@ -238,6 +253,7 @@ namespace RAndG
             trackProgress.Value = 0;
             lblTime.Text = "00:00 / 00:00";
         }
+        // Обрабатывает переход к следующей композиции
         private void BtnNextClick(object sender, EventArgs e)
         {
             player.Next();
@@ -254,6 +270,7 @@ namespace RAndG
                 }
             }
         }
+        // Обрабатывает переход к предыдущей композиции
         private void BtnPrevClick(object sender, EventArgs e)
         {
             player.Previous();
@@ -270,10 +287,12 @@ namespace RAndG
                 }
             }
         }
+        // Обрабатывает изменение положения регулятора громкости
         private void TrackVolumeScroll(object sender, EventArgs e)
         {
             player.SetVolume(trackVolume.Value);
         }
+        // Обрабатывает перемещение ползунка позиции воспроизведения
         private void TrackProgressScroll(object sender, EventArgs e)
         {
             double total = player.GetTotalDurationSeconds();
@@ -282,14 +301,17 @@ namespace RAndG
                 player.SetPositionSeconds(trackProgress.Value);
             }
         }
+        // Обрабатывает изменение состояния переключателя повтора композиции
         private void ChkLoopCheckedChanged(object sender, EventArgs e)
         {
             player.LoopTrack = chkLoop.Checked;
         }
+        // Обрабатывает изменение состояния режима случайного воспроизведения
         private void ChkShuffleCheckedChanged(object sender, EventArgs e)
         {
             player.Shuffle = chkShuffle.Checked;
         }
+        // Обрабатывает срабатывания таймера воспроизведения
         private void PlaybackTimerTick(object sender, EventArgs e)
         {
             double current = player.GetCurrentPositionSeconds();

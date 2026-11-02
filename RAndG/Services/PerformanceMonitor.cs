@@ -3,6 +3,7 @@ using System.Diagnostics;
 
 namespace RAndG.Services
 {
+    // Класс для измерения времени выполнения операций приложения
     public class PerformanceMonitor
     {
         private Stopwatch watch;
@@ -15,7 +16,7 @@ namespace RAndG.Services
             watch.Reset();
             watch.Start();
         }
-        // Вывод времени в миллисекундах подтверждает соблюдение нефункциональных требований по задержкам
+        // Завершает измерение и выводит время выполнения операции
         public void EndMeasure(string operationName)
         {
             watch.Stop();

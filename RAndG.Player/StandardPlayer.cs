@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace RAndG.Player
 {
+    // Класс для воспроизведения одного аудиофайла
     public class StandardPlayer
     {
         private MusicPlayer internalPlayer;

@@ -4,6 +4,7 @@ using NAudio.Wave;
 
 namespace RAndG.Player
 {
+    // Основной класс аудиопроигрывателя. Управляет воспроизведением, очередью композиций, громкостью и переключением треков
     public class MusicPlayer
     {
         private AudioFileReader fileReader;
@@ -19,6 +20,7 @@ namespace RAndG.Player
             currentIndex = -1;
             currentVolumePercent = 50;
         }
+        // Устанавливает очередь воспроизведения и выбирает начальную композицию
         public void SetQueue(List<string> filePaths, int startIndex)
         {
             currentQueue.Clear();
@@ -28,6 +30,7 @@ namespace RAndG.Player
             }
             currentIndex = startIndex;
         }
+        // Возвращает путь к текущей композиции. Если композиция не выбрана, возвращает null
         public string GetCurrentTrackPath()
         {
             if (currentIndex >= 0 && currentIndex < currentQueue.Count)
@@ -36,7 +39,7 @@ namespace RAndG.Player
             }
             return null;
         }
-        // Принудительное уничтожение предыдущих потоков исключает аппаратное перекрытие каналов
+        // Запускает воспроизведение текущей композиции
         public void Play()
         {
             string currentPath = GetCurrentTrackPath();
@@ -65,7 +68,7 @@ namespace RAndG.Player
                 outputDevice.Play();
             }
         }
-        // Метод очистки ресурсов обязателен для предотвращения удержания файлов ОС
+        // Останавливает воспроизведение и освобождает используемые ресурсы
         public void Stop()
         {
             if (outputDevice != null)
@@ -117,6 +120,7 @@ namespace RAndG.Player
                 fileReader.Volume = volumeFloat;
             }
         }
+        // Возвращает текущую позицию воспроизведения в секундах
         public double GetCurrentPositionSeconds()
         {
             if (fileReader != null)
@@ -125,6 +129,7 @@ namespace RAndG.Player
             }
             return 0.0;
         }
+        // Возвращает полную продолжительность текущей композиции в секундах
         public double GetTotalDurationSeconds()
         {
             if (fileReader != null)
@@ -133,6 +138,7 @@ namespace RAndG.Player
             }
             return 0.0;
         }
+        // Устанавливает новую позицию воспроизведения композиции
         public void SetPositionSeconds(double seconds)
         {
             if (fileReader != null)

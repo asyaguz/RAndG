@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace RAndG.Player
 {
+    // Класс для воспроизведения музыкальных плейлистов
     public class PlaylistPlayer
     {
         private MusicPlayer internalPlayer;

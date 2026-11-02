@@ -6,6 +6,7 @@ using System.Data.SQLite;
 
 namespace RAndG.Data
 {
+    // Класс для создания базы данных и выполнения операций с композициями и плейлистами
     public class Database
     {
         private string connectionString = "Data Source=music_player.db;";
