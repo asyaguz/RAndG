@@ -128,7 +128,7 @@
             this.btnSearch.FlatAppearance.BorderSize = 0;
             this.btnSearch.Click += new System.EventHandler(this.BtnSearchClick);
             this.btnClearSearch.Location = new System.Drawing.Point(202, 19);
-            this.btnClearSearch.Size = new System.Drawing.Size(66, 25);
+            this.btnClearSearch.Size = new System.Drawing.Size(73, 25);
             this.btnClearSearch.Text = "Сбросить";
             this.btnClearSearch.Font = mainFont;
             this.btnClearSearch.BackColor = buttonColor;

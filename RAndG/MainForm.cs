@@ -60,7 +60,7 @@ namespace RAndG
             lstLibrary.Items.Clear();
             foreach (Track t in tracks)
             {
-                lstLibrary.Items.Add(t.Title);
+                lstLibrary.Items.Add(t.Artist + " - " + t.Title);
             }
         }
         // Обновляет отображение плейлистов на главной форме
@@ -83,17 +83,14 @@ namespace RAndG
                 string path = openFileDialog.FileName;
                 if (validator.ValidateFile(path))
                 {
-                    string fileName = System.IO.Path.GetFileNameWithoutExtension(path);
+                    string fileName = System.IO.Path.GetFileNameWithoutExtension(path).Replace("_", " ").Trim();
                     string artist = "Неизвестный исполнитель";
                     string title = fileName;
-                    if (fileName.Contains(" - "))
+                    string[] parts = fileName.Split(new string[] { " - " }, StringSplitOptions.None );
+                    if (parts.Length >= 2)
                     {
-                        string[] parts = fileName.Split(new string[] { " - " }, StringSplitOptions.None);
-                        if (parts.Length >= 2)
-                        {
-                            artist = parts[0].Trim();
-                            title = parts[1].Trim();
-                        }
+                        artist = parts[0].Trim();
+                        title = string.Join(" - ", parts.Skip(1)).Trim();
                     }
                     library.AddTrack(title, artist, path);
                     playlistService.RefreshPlaylists();
@@ -172,7 +169,7 @@ namespace RAndG
                 lstPlaylistTracks.Items.Clear();
                 foreach (Track t in selected.Tracks)
                 {
-                    lstPlaylistTracks.Items.Add(t.Title);
+                    lstPlaylistTracks.Items.Add(t.Artist + " - " + t.Title);
                 }
             }
         }
