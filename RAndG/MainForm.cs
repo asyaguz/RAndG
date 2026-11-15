@@ -18,10 +18,49 @@ namespace RAndG
         private AudioFileValidator validator;
         private PerformanceMonitor monitor;
         private List<Track> activeLibraryList;
+        private bool isDraggingProgress = false;
+        private bool updatingSelection = false;
         // Создает главную форму, инициализирует необходимые объекты и настраивает внешний вид приложения
         public MainForm()
         {
             InitializeComponent();
+
+            // При выборе песни в медиатеке
+            // снимаем выделение с песен плейлиста
+            lstLibrary.MouseDown += (s, e) =>
+            {
+                lstPlaylistTracks.ClearSelected();
+            };
+
+            // При выборе песни в плейлисте
+            // снимаем выделение с медиатеки
+            lstPlaylistTracks.MouseDown += (s, e) =>
+            {
+                lstLibrary.ClearSelected();
+            };
+            // Разрешаем выбирать несколько песен
+            lstLibrary.SelectionMode = SelectionMode.MultiExtended;
+            lstPlaylistTracks.SelectionMode = SelectionMode.MultiExtended;
+
+            // Меняем стандартный цвет выделения
+            lstLibrary.DrawMode = DrawMode.OwnerDrawFixed;
+            lstPlaylistTracks.DrawMode = DrawMode.OwnerDrawFixed;
+            lstPlaylists.DrawMode = DrawMode.OwnerDrawFixed;
+
+            // Подключаем отрисовку списков
+            lstLibrary.DrawItem += ListBoxDrawItem;
+            lstPlaylistTracks.DrawItem += ListBoxDrawItem;
+            lstPlaylists.DrawItem += ListBoxDrawItem;
+
+            trackProgress.MouseDown += (s, e) =>
+            {
+                isDraggingProgress = true;
+            };
+
+            trackProgress.MouseUp += (s, e) =>
+            {
+                isDraggingProgress = false;
+            };
             db = new Database();
             library = new MusicLibrary(db);
             playlistService = new PlaylistService(db, library.GetAllTracks());
@@ -52,6 +91,42 @@ namespace RAndG
             btnPlay.FlatStyle = FlatStyle.Flat;
             btnPlay.FlatAppearance.BorderSize = 0;
             btnPlay.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+        }
+        private void ListBoxDrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index < 0)
+            {
+                return;
+            }
+
+            ListBox list = (ListBox)sender;
+
+            Color backgroundColor = Color.White;
+            Color textColor = Color.FromArgb(70, 68, 81);
+
+            // Мятное выделение вместо стандартного синего
+            if ((e.State & DrawItemState.Selected) ==
+                DrawItemState.Selected)
+            {
+                backgroundColor = Color.FromArgb(204, 226, 214);
+            }
+
+            using (SolidBrush brush = new SolidBrush(backgroundColor))
+            {
+                e.Graphics.FillRectangle(brush, e.Bounds);
+            }
+
+            using (SolidBrush brush = new SolidBrush(textColor))
+            {
+                e.Graphics.DrawString(
+                    list.Items[e.Index].ToString(),
+                    e.Font,
+                    brush,
+                    e.Bounds.X + 5,
+                    e.Bounds.Y + 2);
+            }
+
+            e.DrawFocusRectangle();
         }
         // Обновляет отображение музыкальной библиотеки. Добавляет названия всех переданных композиций в список
         private void UpdateLibraryUI(List<Track> tracks)
@@ -151,10 +226,14 @@ namespace RAndG
             if (index >= 0)
             {
                 List<Playlist> allP = playlistService.GetPlaylists();
-                Playlist target = allP[index];
-                playlistService.DeletePlaylist(target.Id);
-                UpdatePlaylistsUI();
-                lstPlaylistTracks.Items.Clear();
+                if (index < allP.Count)
+                {
+                    Playlist target = allP[index];
+                    playlistService.DeletePlaylist(target.Id);
+                    UpdatePlaylistsUI();
+                    lstPlaylists.ClearSelected();
+                    lstPlaylistTracks.Items.Clear();
+                }
             }
         }
         // Обрабатывает изменение выбранного плейлиста. Отображает композиции, которые входят в него
@@ -171,70 +250,240 @@ namespace RAndG
                 {
                     lstPlaylistTracks.Items.Add(t.Artist + " - " + t.Title);
                 }
+                UpdatePlayingSelection();
             }
         }
         // Обрабатывает добавление выбранной композиции в выбранный плейлист
         private void BtnAddTrackToPClick(object sender, EventArgs e)
         {
-            int trackIndex = lstLibrary.SelectedIndex;
             int playlistIndex = lstPlaylists.SelectedIndex;
-            if (trackIndex >= 0 && playlistIndex >= 0)
+
+            // Проверяем, выбран ли плейлист
+            if (playlistIndex < 0)
             {
-                Track t = activeLibraryList[trackIndex];
-                List<Playlist> allP = playlistService.GetPlaylists();
-                Playlist p = allP[playlistIndex];
-                playlistService.AddTrackToPlaylist(p.Id, t);
-                LstPlaylistsSelectedIndexChanged(null, null);
+                MessageBox.Show(
+                    "Сначала выберите плейлист!",
+                    "Подсказка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                return;
             }
-            else
+
+            // Проверяем, выбраны ли песни
+            if (lstLibrary.SelectedIndices.Count == 0)
             {
-                MessageBox.Show("Пожалуйста, выберите трек слева и плейлист справа!", "Подсказка", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    "Выберите одну или несколько композиций!",
+                    "Подсказка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+
+                return;
             }
+
+            // Сохраняем номера выбранных песен
+            List<int> selectedIndexes = new List<int>();
+
+            foreach (int index in lstLibrary.SelectedIndices)
+            {
+                selectedIndexes.Add(index);
+            }
+
+            List<Playlist> allP = playlistService.GetPlaylists();
+
+            if (playlistIndex >= allP.Count)
+            {
+                return;
+            }
+
+            Playlist selectedPlaylist = allP[playlistIndex];
+
+            int addedCount = 0;
+
+            // Добавляем все выбранные композиции
+            foreach (int index in selectedIndexes)
+            {
+                if (index >= 0 && index < activeLibraryList.Count)
+                {
+                    Track t = activeLibraryList[index];
+
+                    int oldCount = selectedPlaylist.Tracks.Count;
+
+                    playlistService.AddTrackToPlaylist(
+                        selectedPlaylist.Id, t);
+
+                    playlistService.RefreshPlaylists();
+                    allP = playlistService.GetPlaylists();
+                    selectedPlaylist = allP[playlistIndex];
+
+                    if (selectedPlaylist.Tracks.Count > oldCount)
+                    {
+                        addedCount++;
+                    }
+                }
+            }
+
+            // Обновляем отображение плейлиста
+            LstPlaylistsSelectedIndexChanged(null, null);
+
+
+            MessageBox.Show(
+                "Добавлено композиций: " + addedCount,
+                "Готово",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
         }
         // Обрабатывает удаление композиции из выбранного плейлиста
+        // Обрабатывает удаление одной или нескольких композиций из выбранного плейлиста
         private void BtnRemoveTrackFromPClick(object sender, EventArgs e)
         {
             int playlistIndex = lstPlaylists.SelectedIndex;
-            int trackIndex = lstPlaylistTracks.SelectedIndex;
-            if (playlistIndex >= 0 && trackIndex >= 0)
+
+            // Проверяем, выбран ли плейлист и выделены ли песни
+            if (playlistIndex < 0 || lstPlaylistTracks.SelectedIndices.Count == 0)
             {
-                List<Playlist> allP = playlistService.GetPlaylists();
-                Playlist p = allP[playlistIndex];
-                Track t = p.Tracks[trackIndex];
-                playlistService.RemoveTrackFromPlaylist(p.Id, t.Id);
-                LstPlaylistsSelectedIndexChanged(null, null);
+                MessageBox.Show(
+                    "Выберите плейлист и одну или несколько композиций для удаления!",
+                    "Подсказка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+                return;
             }
+
+            List<Playlist> allP = playlistService.GetPlaylists();
+            if (playlistIndex >= allP.Count)
+            {
+                return;
+            }
+
+            Playlist p = allP[playlistIndex];
+
+            // Сначала собираем сами объекты песен, которые нужно удалить
+            List<Track> tracksToRemove = new List<Track>();
+            foreach (int trackIndex in lstPlaylistTracks.SelectedIndices)
+            {
+                if (trackIndex >= 0 && trackIndex < p.Tracks.Count)
+                {
+                    tracksToRemove.Add(p.Tracks[trackIndex]);
+                }
+            }
+
+            // Удаляем каждую выбранную песню из плейлиста
+            foreach (Track t in tracksToRemove)
+            {
+                playlistService.RemoveTrackFromPlaylist(p.Id, t.Id);
+            }
+
+            // Обновляем список треков на экране
+            LstPlaylistsSelectedIndexChanged(null, null);
         }
         // Обрабатывает нажатие кнопки воспроизведения. Устанавливает очередь композиций и запускает выбранный аудиофайл
         private void BtnPlayClick(object sender, EventArgs e)
         {
-            int index = lstLibrary.SelectedIndex;
-            if (index >= 0)
+            try
             {
-                try
+                List<Track> tracksToPlay = new List<Track>();
+                int selectedIndex = -1;
+
+                // 1. Если выбрана песня в плейлисте
+                if (lstPlaylistTracks.SelectedIndex >= 0 && lstPlaylists.SelectedIndex >= 0)
                 {
-                    Track target = activeLibraryList[index];
-                    if (validator.ValidateFile(target.FilePath))
+                    List<Playlist> allP = playlistService.GetPlaylists();
+
+                    if (lstPlaylists.SelectedIndex < allP.Count)
                     {
-                        List<string> paths = new List<string>();
-                        foreach (Track t in activeLibraryList)
-                        {
-                            paths.Add(t.FilePath);
-                        }
-                        player.SetQueue(paths, index);
-                        player.Play();
-                        lblCurrentTrack.Text = "Сейчас играет: " + target.Title;
-                        playbackTimer.Start();
-                    }
-                    else
-                    {
-                        MessageBox.Show("Файл недоступен по указанному пути.", "Ошибка воспроизведения", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        tracksToPlay = allP[lstPlaylists.SelectedIndex].Tracks;
+                        selectedIndex = lstPlaylistTracks.SelectedIndex;
                     }
                 }
-                catch (Exception ex)
+                // 2. Если выбрана песня в медиатеке
+                else if (lstLibrary.SelectedIndex >= 0)
                 {
-                    MessageBox.Show("Произошла системная ошибка: " + ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    tracksToPlay = activeLibraryList;
+                    selectedIndex = lstLibrary.SelectedIndex;
                 }
+                // 3. Если песня не выбрана, но выбран плейлист (для случайного порядка)
+                else if (lstPlaylists.SelectedIndex >= 0)
+                {
+                    List<Playlist> allP = playlistService.GetPlaylists();
+
+                    if (lstPlaylists.SelectedIndex < allP.Count)
+                    {
+                        tracksToPlay = allP[lstPlaylists.SelectedIndex].Tracks;
+                    }
+                }
+                // 4. Иначе берем всю медиатеку (для случайного порядка)
+                else
+                {
+                    tracksToPlay = activeLibraryList;
+                }
+
+                if (tracksToPlay.Count == 0)
+                {
+                    MessageBox.Show(
+                        "Нет композиций для воспроизведения!",
+                        "Подсказка",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+
+                    return;
+                }
+
+                // Если случайный порядок включен, выбираем случайную песню
+                if (chkShuffle.Checked)
+                {
+                    Random rand = new Random();
+                    selectedIndex = rand.Next(0, tracksToPlay.Count);
+                }
+                else if (selectedIndex < 0)
+                {
+                    MessageBox.Show(
+                        "Выберите композицию или включите случайный порядок!",
+                        "Подсказка",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+
+                    return;
+                }
+
+                Track target = tracksToPlay[selectedIndex];
+
+                if (validator.ValidateFile(target.FilePath))
+                {
+                    List<string> paths = new List<string>();
+
+                    foreach (Track t in tracksToPlay)
+                    {
+                        paths.Add(t.FilePath);
+                    }
+
+                    player.Shuffle = chkShuffle.Checked;
+                    player.SetQueue(paths, selectedIndex);
+                    player.Play();
+
+                    lblCurrentTrack.Text = "Сейчас играет: " + target.Title;
+
+                    playbackTimer.Start();
+
+                    UpdatePlayingSelection();
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "Файл недоступен по указанному пути!",
+                        "Ошибка воспроизведения",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Ошибка воспроизведения: " + ex.Message,
+                    "Ошибка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
         // Обрабатывает нажатие кнопки паузы и приостанавливает воспроизведение
@@ -254,10 +503,12 @@ namespace RAndG
         private void BtnNextClick(object sender, EventArgs e)
         {
             player.Next();
+
             string currentPath = player.GetCurrentTrackPath();
+
             if (string.IsNullOrEmpty(currentPath) == false)
             {
-                foreach (Track t in activeLibraryList)
+                foreach (Track t in library.GetAllTracks())
                 {
                     if (t.FilePath == currentPath)
                     {
@@ -265,16 +516,21 @@ namespace RAndG
                         break;
                     }
                 }
+
+                UpdatePlayingSelection();
+                playbackTimer.Start();
             }
         }
         // Обрабатывает переход к предыдущей композиции
         private void BtnPrevClick(object sender, EventArgs e)
         {
             player.Previous();
+
             string currentPath = player.GetCurrentTrackPath();
+
             if (string.IsNullOrEmpty(currentPath) == false)
             {
-                foreach (Track t in activeLibraryList)
+                foreach (Track t in library.GetAllTracks())
                 {
                     if (t.FilePath == currentPath)
                     {
@@ -282,6 +538,9 @@ namespace RAndG
                         break;
                     }
                 }
+
+                UpdatePlayingSelection();
+                playbackTimer.Start();
             }
         }
         // Обрабатывает изменение положения регулятора громкости
@@ -293,11 +552,13 @@ namespace RAndG
         private void TrackProgressScroll(object sender, EventArgs e)
         {
             double total = player.GetTotalDurationSeconds();
+
             if (total > 0)
             {
                 player.SetPositionSeconds(trackProgress.Value);
             }
         }
+
         // Обрабатывает изменение состояния переключателя повтора композиции
         private void ChkLoopCheckedChanged(object sender, EventArgs e)
         {
@@ -313,30 +574,120 @@ namespace RAndG
         {
             double current = player.GetCurrentPositionSeconds();
             double total = player.GetTotalDurationSeconds();
+
+            if (total <= 0)
+            {
+                return;
+            }
+            // Обновляем время
             int curMin = (int)current / 60;
             int curSec = (int)current % 60;
+
             int totMin = (int)total / 60;
             int totSec = (int)total % 60;
-            lblTime.Text = curMin.ToString("D2") + ":" + curSec.ToString("D2") + " / " +
-            totMin.ToString("D2") + ":" + totSec.ToString("D2");
-            if (total > 0)
+
+            lblTime.Text = curMin.ToString("D2") + ":" +
+                           curSec.ToString("D2") + " / " +
+                           totMin.ToString("D2") + ":" +
+                           totSec.ToString("D2");
+            // Настраиваем ползунок
+            int maxValue = (int)Math.Ceiling(total);
+
+            if (maxValue < 1)
             {
-                trackProgress.Maximum = (int)total;
-                if (trackProgress.Focused == false)
-                {
-                    trackProgress.Value = (int)current;
-                }
+                maxValue = 1;
             }
-            if (current >= total && total > 0)
+
+            trackProgress.Maximum = maxValue;
+            // Обновляем ползунок, если пользователь его не перемещает
+            if (isDraggingProgress == false)
+            {
+                int position = (int)current;
+
+                if (position < 0)
+                {
+                    position = 0;
+                }
+
+                if (position > trackProgress.Maximum)
+                {
+                    position = trackProgress.Maximum;
+                }
+
+                trackProgress.Value = position;
+            }
+            // Проверяем окончание композиции
+            if (player.IsTrackFinished())
             {
                 if (chkLoop.Checked)
                 {
+                    // Повторяем текущую композицию
                     player.Play();
                 }
                 else
                 {
+                    // Переходим к следующей композиции
                     BtnNextClick(null, null);
                 }
+            }
+        }
+        private void UpdatePlayingSelection()
+        {
+            string currentPath = player.GetCurrentTrackPath();
+
+            if (string.IsNullOrEmpty(currentPath))
+            {
+                return;
+            }
+
+            // Сначала проверяем, есть ли эта песня в текущем выбранном плейлисте
+            int playlistTrackIndex = -1;
+
+            if (lstPlaylists.SelectedIndex >= 0)
+            {
+                List<Playlist> allP = playlistService.GetPlaylists();
+
+                if (lstPlaylists.SelectedIndex < allP.Count)
+                {
+                    List<Track> tracks = allP[lstPlaylists.SelectedIndex].Tracks;
+
+                    for (int i = 0; i < tracks.Count; i++)
+                    {
+                        if (tracks[i].FilePath == currentPath)
+                        {
+                            playlistTrackIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Если песня найдена в открытом плейлисте — выделяем её только там
+            if (playlistTrackIndex >= 0 && lstLibrary.SelectedIndex < 0)
+            {
+                lstPlaylistTracks.ClearSelected();
+                lstPlaylistTracks.SelectedIndex = playlistTrackIndex;
+                return;
+            }
+
+            // Иначе ищем и выделяем песню в медиатеке
+            int libraryIndex = -1;
+
+            for (int i = 0; i < activeLibraryList.Count; i++)
+            {
+                if (activeLibraryList[i].FilePath == currentPath)
+                {
+                    libraryIndex = i;
+                    break;
+                }
+            }
+
+            lstLibrary.ClearSelected();
+            lstPlaylistTracks.ClearSelected();
+
+            if (libraryIndex >= 0)
+            {
+                lstLibrary.SelectedIndex = libraryIndex;
             }
         }
     }
