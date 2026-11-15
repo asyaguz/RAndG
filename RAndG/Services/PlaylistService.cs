@@ -21,6 +21,7 @@ namespace RAndG.Services
         // Обновляет список плейлистов данными из базы данных
         public void RefreshPlaylists()
         {
+            this.mainLibraryTracks = db.LoadTracks();
             this.playlists = db.LoadPlaylists(mainLibraryTracks);
         }
         // Возвращает список всех плейлистов
